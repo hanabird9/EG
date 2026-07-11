@@ -4,6 +4,7 @@ import { openNotificationModal, showToast } from './dashboard.js';
 
 let currentYear = new Date().getFullYear();
 let currentMonth = new Date().getMonth(); // 0-indexed
+let selectedDateStr = new Date().toISOString().split('T')[0]; // 현재 선택된 날짜 (Agenda용)
 
 export function renderCalendar(container) {
   const students = getStudents();
@@ -38,6 +39,9 @@ export function renderCalendar(container) {
         <!-- 날짜 그리드는 JS로 채워짐 -->
       </div>
     </div>
+    
+    <!-- 하단 상세 일정 아젠다 뷰 추가 (모바일 핵심 대응) -->
+    <div class="calendar-agenda-container" id="calendar-agenda-container"></div>
   `;
 
   if (window.lucide) window.lucide.createIcons();
@@ -65,11 +69,12 @@ export function renderCalendar(container) {
     const today = new Date();
     currentYear = today.getFullYear();
     currentMonth = today.getMonth();
+    selectedDateStr = today.toISOString().split('T')[0];
     updateCalendarGrid(container, students, sessions, payments);
   });
 
   document.getElementById('btn-add-session').addEventListener('click', () => {
-    openAddSessionModal(students);
+    openAddSessionModal(students, selectedDateStr);
   });
 
   // 그리드 업데이트
@@ -102,15 +107,38 @@ function updateCalendarGrid(container, students, sessions, payments) {
   for (let i = firstDay - 1; i >= 0; i--) {
     const dayNum = prevLastDate - i;
     const dateCell = createDateCell(currentYear, currentMonth - 1, dayNum, true, todayStr);
+    
+    // 이전달 년/월 계산 보정
+    let prevYear = currentYear;
+    let prevMonthVal = currentMonth;
+    if (currentMonth === 0) {
+      prevYear--;
+      prevMonthVal = 12;
+    }
+    const cellDateStr = `${prevYear}-${String(prevMonthVal).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+    
+    if (cellDateStr === selectedDateStr) {
+      dateCell.classList.add('selected-day');
+    }
+    
+    dateCell.addEventListener('click', () => {
+      selectedDateStr = cellDateStr;
+      updateCalendarGrid(container, students, sessions, payments);
+    });
+    
     grid.appendChild(dateCell);
   }
 
   // 2. 이번달 날짜 채우기
   for (let i = 1; i <= lastDate; i++) {
     const dateCell = createDateCell(currentYear, currentMonth, i, false, todayStr);
+    const cellDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    
+    if (cellDateStr === selectedDateStr) {
+      dateCell.classList.add('selected-day');
+    }
     
     // 해당 날짜의 세션 필터링
-    const cellDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
     const daySessions = sessions.filter(session => {
       const sDate = new Date(session.startTime).toISOString().split('T')[0];
       return sDate === cellDateStr;
@@ -149,10 +177,10 @@ function updateCalendarGrid(container, students, sessions, payments) {
       dateCell.appendChild(eventEl);
     });
 
-    // 빈 날짜 칸 클릭 시 등록 모달
+    // 날짜 칸 클릭 시 선택 처리 및 아젠다 갱신
     dateCell.addEventListener('click', () => {
-      const clickedDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-      openAddSessionModal(students, clickedDateStr);
+      selectedDateStr = cellDateStr;
+      updateCalendarGrid(container, students, sessions, payments);
     });
 
     grid.appendChild(dateCell);
@@ -163,8 +191,148 @@ function updateCalendarGrid(container, students, sessions, payments) {
   const nextMonthCellsNeeded = 42 - totalCells; // 6주 완성 그리드
   for (let i = 1; i <= nextMonthCellsNeeded; i++) {
     const dateCell = createDateCell(currentYear, currentMonth + 1, i, true, todayStr);
+    
+    // 다음달 년/월 계산 보정
+    let nextYear = currentYear;
+    let nextMonthVal = currentMonth + 2;
+    if (currentMonth === 11) {
+      nextYear++;
+      nextMonthVal = 1;
+    }
+    const cellDateStr = `${nextYear}-${String(nextMonthVal).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    
+    if (cellDateStr === selectedDateStr) {
+      dateCell.classList.add('selected-day');
+    }
+    
+    dateCell.addEventListener('click', () => {
+      selectedDateStr = cellDateStr;
+      updateCalendarGrid(container, students, sessions, payments);
+    });
+    
     grid.appendChild(dateCell);
   }
+  
+  // 하단 아젠다 리스트 렌더링
+  renderAgenda(students, sessions, payments);
+}
+
+// 선택 날짜 상세 일정 리스트 (Agenda View) 그리기
+function renderAgenda(students, sessions, payments) {
+  const agendaContainer = document.getElementById('calendar-agenda-container');
+  if (!agendaContainer) return;
+  
+  const targetDate = new Date(selectedDateStr);
+  const weekDays = ['일', '월', '화', '수', '목', '금', '토'];
+  const dateFormatted = `${targetDate.getFullYear()}년 ${targetDate.getMonth() + 1}월 ${targetDate.getDate()}일 (${weekDays[targetDate.getDay()]})`;
+  
+  // 해당 날짜의 세션 필터링
+  const daySessions = sessions.filter(session => {
+    const sDate = new Date(session.startTime).toISOString().split('T')[0];
+    return sDate === selectedDateStr;
+  }).sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+  
+  let html = `
+    <div class="agenda-header flex-between" style="margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-top: 1.5rem;">
+      <h3 style="font-weight: 700; font-size: 1.1rem; display:flex; align-items:center; gap:0.5rem;">
+        <i data-lucide="calendar-check" style="color:var(--accent); width:20px; height:20px;"></i> ${dateFormatted} 수업 일정
+      </h3>
+      <button class="btn btn-secondary btn-icon" id="btn-agenda-add" style="padding: 0.35rem 0.5rem; font-size: 0.8rem; display:flex; align-items:center; gap:0.25rem;">
+        <i data-lucide="plus" style="width:14px; height:14px;"></i> 수업 추가
+      </button>
+    </div>
+    <div class="agenda-list" style="display:flex; flex-direction:column; gap:0.75rem;">
+  `;
+  
+  if (daySessions.length === 0) {
+    html += `
+      <div style="text-align: center; color: var(--text-secondary); padding: 2rem 0; border: 1px dashed var(--border); border-radius: 0.5rem; font-size: 0.9rem; background-color: var(--bg-secondary);">
+        이 날짜에는 등록된 수업 일정이 없습니다.
+      </div>
+    `;
+  } else {
+    daySessions.forEach(session => {
+      const startTime = new Date(session.startTime);
+      const endTime = new Date(session.endTime);
+      const timeStr = `${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')} ~ ${String(endTime.getHours()).padStart(2, '0')}:${String(endTime.getMinutes()).padStart(2, '0')}`;
+      
+      const student = students.find(s => s.id === session.studentId);
+      const studentName = student ? student.name : '알수없음';
+      
+      const courses = student ? (student.courses || []) : [];
+      const course = courses.find(c => c.id === session.courseId);
+      const courseSubject = course ? course.subject : '과외';
+      
+      // 수납 상태 조회
+      const payment = resolveSessionPayment(session, payments, courses);
+      let paymentBadge = '';
+      if (payment) {
+        paymentBadge = payment.status === 'paid' ? 
+          `<span class="payment-badge payment-badge-paid">수납 완료</span>` : 
+          `<span class="payment-badge payment-badge-unpaid">미납</span>`;
+      } else {
+        paymentBadge = `<span class="payment-badge payment-badge-unbilled">미청구</span>`;
+      }
+      
+      // 출결 상태
+      const attText = session.attendance === 'present' ? '출석' :
+                      session.attendance === 'late' ? '지각' :
+                      session.attendance === 'absent' ? '결석' : '출결 대기';
+      const attBadgeClass = session.attendance === 'present' ? 'badge-present' :
+                            session.attendance === 'late' ? 'badge-late' :
+                            session.attendance === 'absent' ? 'badge-absent' : 'badge-pending';
+      
+      html += `
+        <div class="agenda-item card" data-id="${session.id}" style="padding: 1rem; border-radius: 0.75rem; border: 1px solid var(--border); background-color: var(--bg-secondary); cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;">
+          <div class="flex-between" style="margin-bottom: 0.5rem;">
+            <span style="font-weight: 700; font-size: 1rem; color: var(--text-primary); display:flex; align-items:center; gap:0.5rem;">
+              ${studentName} <span class="badge ${attBadgeClass}" style="font-size:0.7rem; padding:0.15rem 0.5rem;">${attText}</span>
+            </span>
+            ${paymentBadge}
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary); display:flex; flex-direction:column; gap:0.25rem;">
+            <div style="display:flex; align-items:center; gap:0.25rem;"><i data-lucide="book-open" style="width:14px; height:14px; color:var(--accent);"></i> <b>과목:</b> ${courseSubject}</div>
+            <div style="display:flex; align-items:center; gap:0.25rem;"><i data-lucide="clock" style="width:14px; height:14px; color:var(--accent);"></i> <b>시간:</b> ${timeStr}</div>
+            ${session.notes ? `<div style="margin-top:0.25rem; font-style:italic; color:var(--text-tertiary);">"${session.notes}"</div>` : ''}
+          </div>
+        </div>
+      `;
+    });
+  }
+  
+  html += `</div>`;
+  agendaContainer.innerHTML = html;
+  
+  if (window.lucide) window.lucide.createIcons();
+  
+  // 수업 추가 버튼 이벤트 바인딩
+  document.getElementById('btn-agenda-add').addEventListener('click', (e) => {
+    e.stopPropagation();
+    openAddSessionModal(students, selectedDateStr);
+  });
+  
+  // 각 아이템 클릭 이벤트 바인딩 (상세 팝업 열기)
+  const agendaItems = agendaContainer.querySelectorAll('.agenda-item');
+  agendaItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const sessionId = item.dataset.id;
+      const session = sessions.find(s => s.id === sessionId);
+      if (session) {
+        openSessionDetailsModal(session, students, payments);
+      }
+    });
+    
+    // 호버 스타일링
+    item.addEventListener('mouseenter', () => {
+      item.style.transform = 'translateY(-2px)';
+      item.style.boxShadow = 'var(--shadow-md)';
+    });
+    item.addEventListener('mouseleave', () => {
+      item.style.transform = 'translateY(0)';
+      item.style.boxShadow = 'none';
+    });
+  });
 }
 
 function createDateCell(year, month, dayNum, isOtherMonth, todayStr) {
