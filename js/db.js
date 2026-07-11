@@ -544,3 +544,37 @@ export function seedDemoData() {
 
   loadData();
 }
+
+// 수업에 매핑할 수업료 청구서를 동적으로 찾아주는 헬퍼 함수 (선불/후불 자동 매칭 포함)
+export function resolveSessionPayment(session, payments, courses) {
+  if (session.paymentId) {
+    return payments.find(p => p.id === session.paymentId) || null;
+  }
+  
+  const course = (courses || []).find(c => c.id === session.courseId);
+  if (!course) return null;
+  
+  // 선불/후불 등의 매월 1일 기준 월 단위 결제인 경우 자동 조회
+  if (course.tuitionCycle === 'monthly_prepaid' || course.tuitionCycle === 'monthly_postpaid' || course.tuitionCycle === 'monthly') {
+    const sessionDate = new Date(session.startTime);
+    const sYear = sessionDate.getFullYear();
+    const sMonth = sessionDate.getMonth(); // 0~11
+    
+    return payments.find(p => {
+      if (p.studentId !== session.studentId || p.courseId !== session.courseId) return false;
+      
+      const dueDate = new Date(p.dueDate);
+      const dYear = dueDate.getFullYear();
+      let dMonth = dueDate.getMonth();
+      
+      if (course.tuitionCycle === 'monthly_postpaid') {
+        // 후불제: 청구서 납기월(보통 다음달 1일)의 이전 달 수업을 충당함
+        dMonth = dMonth === 0 ? 11 : dMonth - 1;
+      }
+      
+      return sYear === dYear && sMonth === dMonth;
+    }) || null;
+  }
+  
+  return null;
+}

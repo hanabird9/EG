@@ -1,5 +1,5 @@
 // 학생 관리 모듈 (B안: 1학생 - N과목 매칭)
-import { getStudents, getSessions, getPayments, addStudent, updateStudent, deleteStudent, addCourse, updateCourse, deleteCourse, addPayment, updatePayment, deletePayment } from './db.js';
+import { getStudents, getSessions, getPayments, addStudent, updateStudent, deleteStudent, addCourse, updateCourse, deleteCourse, addPayment, updatePayment, deletePayment, resolveSessionPayment } from './db.js';
 import { showToast } from './dashboard.js';
 
 let activeStudentId = null; // 상세 페이지를 볼 학생 ID
@@ -357,13 +357,11 @@ function renderStudentDetail(container, studentId) {
       const courseSubject = courses.find(c => c.id === session.courseId)?.subject || '알수없음';
       
       let paymentStatusBadge = '';
-      if (session.paymentId) {
-        const pay = getPayments().find(p => p.id === session.paymentId);
-        if (pay) {
-          paymentStatusBadge = pay.status === 'paid' ? 
-            `<span class="payment-badge payment-badge-paid" style="margin-left:0.5rem;">수납 완료</span>` : 
-            `<span class="payment-badge payment-badge-unpaid" style="margin-left:0.5rem;">미납</span>`;
-        }
+      const pay = resolveSessionPayment(session, getPayments(), courses);
+      if (pay) {
+        paymentStatusBadge = pay.status === 'paid' ? 
+          `<span class="payment-badge payment-badge-paid" style="margin-left:0.5rem;">수납 완료</span>` : 
+          `<span class="payment-badge payment-badge-unpaid" style="margin-left:0.5rem;">미납</span>`;
       } else {
         paymentStatusBadge = `<span class="payment-badge payment-badge-unbilled" style="margin-left:0.5rem;">미청구</span>`;
       }

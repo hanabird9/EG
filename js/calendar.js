@@ -1,5 +1,5 @@
 // 캘린더 모듈
-import { getStudents, getSessions, getPayments, getSettings, addSession, addRecurringSessions, updateSession, deleteSession, deleteRecurringSessions } from './db.js';
+import { getStudents, getSessions, getPayments, getSettings, addSession, addRecurringSessions, updateSession, deleteSession, deleteRecurringSessions, resolveSessionPayment } from './db.js';
 import { openNotificationModal, showToast } from './dashboard.js';
 
 let currentYear = new Date().getFullYear();
@@ -121,19 +121,18 @@ function updateCalendarGrid(container, students, sessions, payments) {
       const eventEl = document.createElement('div');
       eventEl.className = 'calendar-event';
       
-      // 수납 여부에 따라 클래스 결정
+      // 수납 여부에 따라 클래스 결정 (선불/후불 동적 매칭 반영)
       let paymentClass = 'calendar-event-unbilled';
-      if (session.paymentId) {
-        const payment = payments.find(p => p.id === session.paymentId);
-        if (payment) {
-          paymentClass = payment.status === 'paid' ? 'calendar-event-paid' : 'calendar-event-unpaid';
-        }
+      const student = students.find(s => s.id === session.studentId);
+      const courses = student ? (student.courses || []) : [];
+      const payment = resolveSessionPayment(session, payments, courses);
+      if (payment) {
+        paymentClass = payment.status === 'paid' ? 'calendar-event-paid' : 'calendar-event-unpaid';
       }
       eventEl.classList.add(paymentClass);
       
       const startTime = new Date(session.startTime);
       const timeStr = `${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')}`;
-      const student = students.find(s => s.id === session.studentId);
       const studentName = student ? student.name : '알수없음';
       const course = student && student.courses ? student.courses.find(c => c.id === session.courseId) : null;
       const courseSubject = course ? course.subject : '';
@@ -418,7 +417,7 @@ function openSessionDetailsModal(session, students, payments) {
 
   // 해당 학생의 해당 과목에 대한 미납 청구서만 필터링 (수업료 연결용)
   const studentUnpaidPayments = payments.filter(p => p.studentId === session.studentId && p.courseId === session.courseId && p.status === 'unpaid');
-  const currentLinkedPayment = payments.find(p => p.id === session.paymentId);
+  const currentLinkedPayment = resolveSessionPayment(session, payments, student ? (student.courses || []) : []);
 
   modalContent.innerHTML = `
     <div class="modal-header">
@@ -457,7 +456,7 @@ function openSessionDetailsModal(session, students, payments) {
         <select class="form-control" id="session-payment-select">
           <option value="none">연결 없음 (미청구 상태)</option>
           ${currentLinkedPayment ? `<option value="${currentLinkedPayment.id}" selected>[연결됨] ${currentLinkedPayment.notes || '청구서'} (RM${currentLinkedPayment.amount.toLocaleString()} - ${currentLinkedPayment.status === 'paid' ? '완납' : '미납'})</option>` : ''}
-          ${studentUnpaidPayments.filter(p => p.id !== session.paymentId).map(p => `
+          ${studentUnpaidPayments.filter(p => !currentLinkedPayment || p.id !== currentLinkedPayment.id).map(p => `
             <option value="${p.id}">${p.notes || '청구서'} (RM${p.amount.toLocaleString()} - 미납)</option>
           `).join('')}
         </select>
