@@ -761,6 +761,7 @@ main {
     text-indent: -9999px !important;
     white-space: nowrap !important;
     min-height: auto !important;
+    pointer-events: none !important; /* 모바일에서 점 클릭 비활성화, 클릭 이벤트가 날짜 셀로 관통하게 만듦 */
   }
 
   /* 점 색상 유지 */
