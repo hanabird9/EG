@@ -456,9 +456,9 @@ function openSessionDetailsModal(session, students, payments) {
         </label>
         <select class="form-control" id="session-payment-select">
           <option value="none">연결 없음 (미청구 상태)</option>
-          ${currentLinkedPayment ? `<option value="${currentLinkedPayment.id}" selected>[연결됨] ${currentLinkedPayment.notes || '청구서'} (${currentLinkedPayment.amount.toLocaleString()}원 - ${currentLinkedPayment.status === 'paid' ? '완납' : '미납'})</option>` : ''}
+          ${currentLinkedPayment ? `<option value="${currentLinkedPayment.id}" selected>[연결됨] ${currentLinkedPayment.notes || '청구서'} (RM${currentLinkedPayment.amount.toLocaleString()} - ${currentLinkedPayment.status === 'paid' ? '완납' : '미납'})</option>` : ''}
           ${studentUnpaidPayments.filter(p => p.id !== session.paymentId).map(p => `
-            <option value="${p.id}">${p.notes || '청구서'} (${p.amount.toLocaleString()}원 - 미납)</option>
+            <option value="${p.id}">${p.notes || '청구서'} (RM${p.amount.toLocaleString()} - 미납)</option>
           `).join('')}
         </select>
         <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">

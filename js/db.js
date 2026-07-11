@@ -315,7 +315,7 @@ export function seedDemoData() {
 
   const chineseCourse = addCourse(student1.id, {
     subject: '중국어',
-    tuitionFee: 300000,
+    tuitionFee: 300,
     tuitionCycle: 'monthly', // 매달 15일 결제
     tuitionCycleValue: 15,
     notes: '기초 중국어 회화 교재 사용'
@@ -323,7 +323,7 @@ export function seedDemoData() {
 
   const mathCourse = addCourse(student1.id, {
     subject: '수학',
-    tuitionFee: 350000,
+    tuitionFee: 350,
     tuitionCycle: 'count', // 횟수제
     tuitionCycleValue: 8,
     notes: '중2 수학 개념 완성 문제집 사용'
@@ -343,7 +343,7 @@ export function seedDemoData() {
 
   const englishCourse = addCourse(student2.id, {
     subject: '영어',
-    tuitionFee: 400000,
+    tuitionFee: 400,
     tuitionCycle: 'monthly', // 매달 10일
     tuitionCycleValue: 10,
     notes: '고1 모의고사 기출문제 분석'
@@ -351,7 +351,7 @@ export function seedDemoData() {
 
   const hskCourse = addCourse(student2.id, {
     subject: 'HSK',
-    tuitionFee: 350000,
+    tuitionFee: 350,
     tuitionCycle: 'count', // 횟수제
     tuitionCycleValue: 8,
     notes: 'HSK 4급 한 권으로 끝내기 교재'
@@ -371,7 +371,7 @@ export function seedDemoData() {
 
   const examChineseCourse = addCourse(student3.id, {
     subject: '입시중국어',
-    tuitionFee: 500000,
+    tuitionFee: 500,
     tuitionCycle: 'monthly', // 매달 20일
     tuitionCycleValue: 20,
     notes: '고난도 대입 수능 중국어 및 면접 구술 준비'
@@ -382,7 +382,7 @@ export function seedDemoData() {
   const payMathPaid = addPayment({
     studentId: student1.id,
     courseId: mathCourse.id,
-    amount: 350000,
+    amount: 350,
     dueDate: new Date(today.getFullYear(), today.getMonth() - 1, 10).toISOString().split('T')[0],
     paidDate: new Date(today.getFullYear(), today.getMonth() - 1, 9).toISOString().split('T')[0],
     status: 'paid',
@@ -392,7 +392,7 @@ export function seedDemoData() {
   const payMathUnpaid = addPayment({
     studentId: student1.id,
     courseId: mathCourse.id,
-    amount: 350000,
+    amount: 350,
     dueDate: new Date(today.getFullYear(), today.getMonth() + 1, 5).toISOString().split('T')[0],
     paidDate: null,
     status: 'unpaid',
@@ -403,7 +403,7 @@ export function seedDemoData() {
   const payChineseUnpaid = addPayment({
     studentId: student1.id,
     courseId: chineseCourse.id,
-    amount: 300000,
+    amount: 300,
     dueDate: new Date(today.getFullYear(), today.getMonth(), 15).toISOString().split('T')[0],
     paidDate: null,
     status: 'unpaid',
@@ -414,7 +414,7 @@ export function seedDemoData() {
   const payEnglishUnpaid = addPayment({
     studentId: student2.id,
     courseId: englishCourse.id,
-    amount: 400000,
+    amount: 400,
     dueDate: new Date(today.getFullYear(), today.getMonth(), 10).toISOString().split('T')[0],
     paidDate: null,
     status: 'unpaid',
@@ -425,7 +425,7 @@ export function seedDemoData() {
   const payExamChineseUnpaid = addPayment({
     studentId: student3.id,
     courseId: examChineseCourse.id,
-    amount: 500000,
+    amount: 500,
     dueDate: new Date(today.getFullYear(), today.getMonth(), 20).toISOString().split('T')[0],
     paidDate: null,
     status: 'unpaid',

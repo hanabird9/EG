@@ -104,7 +104,7 @@ export function renderDashboard(container) {
                 <div class="session-info">
                   <span style="font-weight: 600;">${payment.student.name} (${payment.course.subject})</span>
                   <span style="font-size: 0.85rem; color: var(--text-secondary);">
-                    청구액: <b>${payment.amount.toLocaleString()}원</b> | 납기: ${payment.dueDate}
+                    청구액: <b>RM${payment.amount.toLocaleString()}</b> | 납기: ${payment.dueDate}
                   </span>
                   <span style="font-size: 0.75rem; color: var(--text-tertiary);">${payment.notes || ''}</span>
                 </div>

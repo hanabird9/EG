@@ -182,7 +182,7 @@ function renderStudentDetail(container, studentId) {
                       </div>
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); display:flex; flex-direction:column; gap:0.1rem;">
-                      <span>수업료: <b>${course.tuitionFee.toLocaleString()}원</b></span>
+                      <span>수업료: <b>RM${course.tuitionFee.toLocaleString()}</b></span>
                       <span>주기: ${course.tuitionCycle === 'monthly' ? '매월 ' + course.tuitionCycleValue + '일' : course.tuitionCycleValue + '회 단위 결제'}</span>
                       ${course.notes ? `<span style="color:var(--text-tertiary); margin-top:0.15rem; font-style:italic;">"${course.notes}"</span>` : ''}
                     </div>
@@ -401,7 +401,7 @@ function renderStudentDetail(container, studentId) {
         <div class="session-row" style="padding: 1rem 0.5rem;">
           <div class="session-info">
             <span style="font-weight: 600; font-size:1.05rem; display:flex; align-items:center; gap:0.5rem;">
-              ${payment.amount.toLocaleString()}원
+              RM${payment.amount.toLocaleString()}
               <span class="badge" style="background-color: var(--bg-tertiary); color: var(--accent); font-size:0.75rem; font-weight:500;">${courseSubject}</span>
             </span>
             <span style="font-size: 0.85rem; color: var(--text-secondary); margin-top:0.25rem;">
@@ -1079,7 +1079,7 @@ function openCourseFormModal(studentId, course = null) {
 
         <div class="form-group">
           <label>수업료 금액 *</label>
-          <input type="number" class="form-control" name="tuitionFee" value="${isEdit ? course.tuitionFee : ''}" required placeholder="예: 300000">
+          <input type="number" class="form-control" name="tuitionFee" value="${isEdit ? course.tuitionFee : ''}" required placeholder="예: 150">
         </div>
 
         <div class="grid-2" style="gap: 1rem; margin-bottom: 0;">
