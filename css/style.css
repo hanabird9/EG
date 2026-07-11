@@ -730,9 +730,9 @@ main {
   }
 
   .calendar-day {
-    min-height: 48px !important;
-    padding: 0.15rem !important;
-    gap: 1px !important;
+    min-height: 65px !important; /* 세로 시간 뱃지를 위해 컴팩트 높이 소폭 확장 */
+    padding: 0.2rem 0.1rem !important;
+    gap: 2px !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -741,33 +741,50 @@ main {
 
   .calendar-day-number {
     font-size: 0.75rem !important;
-    margin-bottom: 0.1rem !important;
+    margin-bottom: 0.15rem !important;
     width: 18px !important;
     height: 18px !important;
   }
 
-  /* 모바일에서 일정 요소를 조그만 점(Dot)으로 변형하여 넘침 방지 */
+  /* 모바일에서 일정 요소를 컴팩트 시간 배지로 변형하여 한눈에 식별 가능하게 함 */
   .calendar-event {
-    display: inline-block !important;
-    width: 5px !important;
-    height: 5px !important;
-    border-radius: 50% !important;
-    padding: 0 !important;
-    margin: 1px !important;
-    font-size: 0 !important;
-    line-height: 0 !important;
-    border: none !important;
+    display: block !important;
+    width: 95% !important;
+    max-width: 48px !important;
+    padding: 1px 2px !important;
+    margin: 1px auto !important;
+    font-size: 0.65rem !important; /* 9px 크기로 시간 가독성 제공 */
+    line-height: 1.1 !important;
+    text-align: center !important;
+    border-radius: 3px !important;
+    border: 1px solid transparent !important;
     overflow: hidden !important;
-    text-indent: -9999px !important;
     white-space: nowrap !important;
     min-height: auto !important;
-    pointer-events: none !important; /* 모바일에서 점 클릭 비활성화, 클릭 이벤트가 날짜 셀로 관통하게 만듦 */
+    pointer-events: none !important; /* 터치 이벤트 관통 */
   }
 
-  /* 점 색상 유지 */
-  .calendar-event-paid { background-color: var(--pastel-paid-text) !important; }
-  .calendar-event-unpaid { background-color: #ef4444 !important; }
-  .calendar-event-unbilled { background-color: var(--text-tertiary) !important; }
+  /* 모바일에서는 학생 이름/과목은 숨기고 시간 정보만 노출 */
+  .calendar-event .event-details {
+    display: none !important;
+  }
+
+  /* 파스텔톤 색상 유지 */
+  .calendar-event-paid {
+    background-color: var(--pastel-paid-bg) !important;
+    color: var(--pastel-paid-text) !important;
+    border-color: var(--pastel-paid-border) !important;
+  }
+  .calendar-event-unpaid {
+    background-color: var(--pastel-unpaid-bg) !important;
+    color: var(--pastel-unpaid-text) !important;
+    border-color: var(--pastel-unpaid-border) !important;
+  }
+  .calendar-event-unbilled {
+    background-color: var(--pastel-unbilled-bg) !important;
+    color: var(--pastel-unbilled-text) !important;
+    border-color: var(--pastel-unbilled-border) !important;
+  }
 
   /* 선택된 날짜 테두리 강조 */
   .calendar-day.selected-day {

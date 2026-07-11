@@ -165,7 +165,7 @@ function updateCalendarGrid(container, students, sessions, payments) {
       const course = student && student.courses ? student.courses.find(c => c.id === session.courseId) : null;
       const courseSubject = course ? course.subject : '';
       
-      eventEl.innerText = `${timeStr} ${studentName} ${courseSubject}`;
+      eventEl.innerHTML = `<span class="event-time">${timeStr}</span><span class="event-details"> ${studentName} ${courseSubject}</span>`;
       eventEl.title = `${studentName} - ${courseSubject} (${session.attendance === 'present' ? '출석' : session.attendance === 'late' ? '지각' : session.attendance === 'absent' ? '결석' : '출결 대기'})`;
       
       // 이벤트 클릭 시 상세 팝업
