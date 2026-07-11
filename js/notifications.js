@@ -173,15 +173,20 @@ export async function sendKakaoTalkNotification(student, session, settings) {
   const message = formatMessage(template, student, session);
   
   try {
-    // 클립보드 복사
+    // 1. 클립보드 복사
     await navigator.clipboard.writeText(message);
     
-    // 모바일 환경 등에서 카카오톡 앱 열기 시도 (iOS/Android 스키마)
-    // 안전을 위해 팝업으로 안내한 다음 열도록 하거나 대화방 이동용 링크를 띄울 수 있음.
-    // kakaotalk://open 은 모바일 기기에서 카카오톡 실행
-    return { success: true, message: message };
+    // 2. 만약 학부모 카카오 ID 자리에 오픈채팅 링크(http/https)를 입력해 두었다면 해당 채팅방 바로 열기
+    if (student.parentKakaoId && (student.parentKakaoId.startsWith('http://') || student.parentKakaoId.startsWith('https://'))) {
+      window.open(student.parentKakaoId, '_blank');
+      return { success: true, method: 'kakaotalk_link', message: message };
+    }
+    
+    // 3. 일반 ID인 경우, 클립보드 복사 후 카카오톡 프로그램/앱 실행
+    window.location.href = 'kakaotalk://';
+    return { success: true, method: 'kakaotalk_app', message: message };
   } catch (err) {
-    console.error('클립보드 복사 실패:', err);
+    console.error('카카오톡 처리 실패:', err);
     return { success: false, error: err };
   }
 }
