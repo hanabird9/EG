@@ -316,8 +316,8 @@ export function seedDemoData() {
   const chineseCourse = addCourse(student1.id, {
     subject: '중국어',
     tuitionFee: 300,
-    tuitionCycle: 'monthly', // 매달 15일 결제
-    tuitionCycleValue: 15,
+    tuitionCycle: 'monthly_prepaid', // 매월 1일 선불
+    tuitionCycleValue: 1,
     notes: '기초 중국어 회화 교재 사용'
   });
 
@@ -344,8 +344,8 @@ export function seedDemoData() {
   const englishCourse = addCourse(student2.id, {
     subject: '영어',
     tuitionFee: 400,
-    tuitionCycle: 'monthly', // 매달 10일
-    tuitionCycleValue: 10,
+    tuitionCycle: 'monthly_postpaid', // 매월 1일 후불
+    tuitionCycleValue: 1,
     notes: '고1 모의고사 기출문제 분석'
   });
 
@@ -372,8 +372,8 @@ export function seedDemoData() {
   const examChineseCourse = addCourse(student3.id, {
     subject: '입시중국어',
     tuitionFee: 500,
-    tuitionCycle: 'monthly', // 매달 20일
-    tuitionCycleValue: 20,
+    tuitionCycle: 'monthly_prepaid', // 매월 1일 선불
+    tuitionCycleValue: 1,
     notes: '고난도 대입 수능 중국어 및 면접 구술 준비'
   });
 

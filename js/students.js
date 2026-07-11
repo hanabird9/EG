@@ -183,7 +183,12 @@ function renderStudentDetail(container, studentId) {
                     </div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); display:flex; flex-direction:column; gap:0.1rem;">
                       <span>수업료: <b>RM${course.tuitionFee.toLocaleString()}</b></span>
-                      <span>주기: ${course.tuitionCycle === 'monthly' ? '매월 ' + course.tuitionCycleValue + '일' : course.tuitionCycleValue + '회 단위 결제'}</span>
+                      <span>주기: ${
+                        course.tuitionCycle === 'monthly_prepaid' ? '매월 1일 선불' :
+                        course.tuitionCycle === 'monthly_postpaid' ? '매월 1일 후불' :
+                        course.tuitionCycle === 'count' ? `${course.tuitionCycleValue}회 단위 결제` :
+                        `매월 ${course.tuitionCycleValue || 1}일`
+                      }</span>
                       ${course.notes ? `<span style="color:var(--text-tertiary); margin-top:0.15rem; font-style:italic;">"${course.notes}"</span>` : ''}
                     </div>
                   </div>
@@ -1084,15 +1089,16 @@ function openCourseFormModal(studentId, course = null) {
 
         <div class="grid-2" style="gap: 1rem; margin-bottom: 0;">
           <div class="form-group">
-            <label>수업료 결제 주기 *</label>
+            <label>수업료 결제 방식 *</label>
             <select class="form-control" name="tuitionCycle">
-              <option value="monthly" ${isEdit && course.tuitionCycle === 'monthly' ? 'selected' : ''}>매달 날짜 지정 (월급제)</option>
+              <option value="monthly_prepaid" ${isEdit && (course.tuitionCycle === 'monthly_prepaid' || course.tuitionCycle === 'monthly' || !course.tuitionCycle) ? 'selected' : ''}>매월 1일 선불 (Prepaid)</option>
+              <option value="monthly_postpaid" ${isEdit && course.tuitionCycle === 'monthly_postpaid' ? 'selected' : ''}>매월 1일 후불 (Postpaid)</option>
               <option value="count" ${isEdit && course.tuitionCycle === 'count' ? 'selected' : ''}>일정 횟수 단위 (횟수제)</option>
             </select>
           </div>
-          <div class="form-group">
-            <label id="cycle-value-label">결제 일자 (일) *</label>
-            <input type="number" class="form-control" name="tuitionCycleValue" value="${isEdit ? course.tuitionCycleValue : '10'}" required min="1" max="31">
+          <div class="form-group" id="cycle-value-group">
+            <label id="cycle-value-label">기준 횟수 (회) *</label>
+            <input type="number" class="form-control" name="tuitionCycleValue" value="${isEdit ? course.tuitionCycleValue : '8'}" required min="1">
           </div>
         </div>
 
@@ -1121,16 +1127,16 @@ function openCourseFormModal(studentId, course = null) {
   const valueInput = form.querySelector('input[name="tuitionCycleValue"]');
 
   const updateCycleLabel = () => {
-    if (cycleSelect.value === 'monthly') {
-      valueLabel.innerText = '결제 일자 (일) *';
-      valueInput.placeholder = '예: 10 (매달 10일)';
-      valueInput.max = '31';
-      valueInput.min = '1';
+    const cycleGroup = document.getElementById('cycle-value-group');
+    if (cycleSelect.value === 'monthly_prepaid' || cycleSelect.value === 'monthly_postpaid') {
+      if (cycleGroup) cycleGroup.style.display = 'none';
+      valueInput.value = '1'; // 매월 1일 고정이므로 1로 설정
     } else {
+      if (cycleGroup) cycleGroup.style.display = 'block';
       valueLabel.innerText = '기준 횟수 (회) *';
       valueInput.placeholder = '예: 8 (8회 기준)';
-      valueInput.removeAttribute('max');
       valueInput.min = '1';
+      valueInput.removeAttribute('max');
     }
   };
 
@@ -1230,7 +1236,20 @@ function openAddPaymentModal(student) {
     const cycleVal = selectedOpt.dataset.cycleVal;
     
     amountInput.value = fee;
-    notesInput.value = cycle === 'count' ? `${cycleVal}회 과외비` : '월분 과외비';
+    
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    
+    if (cycle === 'count') {
+      notesInput.value = `${cycleVal}회 과외비`;
+    } else if (cycle === 'monthly_prepaid') {
+      notesInput.value = `${currentMonth}월분 과외비 (선불)`;
+    } else if (cycle === 'monthly_postpaid') {
+      const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+      notesInput.value = `${prevMonth}월분 과외비 (후불)`;
+    } else {
+      notesInput.value = `${currentMonth}월분 과외비`;
+    }
   };
 
   courseSelect.addEventListener('change', updateFieldsFromSelectedCourse);
