@@ -811,7 +811,7 @@ function renderStudentDetail(container, studentId) {
               </p>
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
               <p style="font-size: 11px; color: #a0aec0; text-align: center; margin-bottom: 0;">
-                본 메일은 유진쌤 튜션 파트너 로컬 알림 서비스를 통해 자동 발송되었습니다.
+                본 메일은 유진쌤 튜션 파트너를 통해 자동 발송되었습니다.
               </p>
             </div>
           `;
@@ -868,7 +868,7 @@ function renderStudentDetail(container, studentId) {
               </p>
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
               <p style="font-size: 11px; color: #a0aec0; text-align: center; margin-bottom: 0;">
-                본 메일은 유진쌤 튜션 파트너 로컬 알림 서비스를 통해 자동 발송되었습니다.
+                본 메일은 유진쌤 튜션 파트너를 통해 자동 발송되었습니다.
               </p>
             </div>
           `;
