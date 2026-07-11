@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>유진쌤 튜션 파트너 - 과외 스케쥴 & 출결/수업료 관리</title>
+  
+  <!-- 스타일 링크 -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Lucide 아이콘 CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- 통합 상단 헤더 레이아웃 -->
+    <header class="app-header">
+      <div class="header-logo-container">
+        <span class="app-logo">유진쌤 튜션 파트너</span>
+      </div>
+      
+      <nav class="nav-tabs-top">
+        <button class="nav-tab-btn active" data-tab="dashboard">
+          <i data-lucide="layout-dashboard"></i> <span>대시보드</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="calendar">
+          <i data-lucide="calendar"></i> <span>일정 달력</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="students">
+          <i data-lucide="users"></i> <span>학생 관리</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="settings">
+          <i data-lucide="settings"></i> <span>설정</span>
+        </button>
+      </nav>
+      
+      <div class="header-actions">
+        <button class="btn btn-secondary btn-icon theme-toggle-btn">
+          <i data-lucide="moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <main>
+      <!-- 대시보드 뷰 -->
+      <div id="dashboard-view" class="tab-content active"></div>
+
+      <!-- 일정 관리 캘린더 뷰 -->
+      <div id="calendar-view" class="tab-content"></div>
+
+      <!-- 학생 관리 뷰 -->
+      <div id="students-view" class="tab-content"></div>
+
+      <!-- 설정 뷰 -->
+      <div id="settings-view" class="tab-content"></div>
+    </main>
+
+  </div>
+
+  <!-- 공통 모달 오버레이 구조 -->
+  <div class="modal-overlay" id="common-modal">
+    <div class="modal-content">
+      <!-- 동적으로 주입될 구조 -->
+    </div>
+  </div>
+
+  <!-- 글로벌 토스트 알림 구조 -->
+  <div class="toast" id="global-toast">복사되었습니다.</div>
+
+  <!-- 메인 모듈 로더 -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
